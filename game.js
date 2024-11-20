@@ -10,18 +10,65 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function createGameCanvas() {
     const gameCanvas = document.getElementById('gameCanvas');
-    const ctx = gameCanvas.getContext('2d');
+    const gameScene = new GameScene(gameCanvas);
+    gameScene.drawGrid();
+}
 
-    // outline
-    ctx.lineWidth = 12;
-    ctx.strokeRect(0, 0, gameCanvas.width, gameCanvas.height);
+class GameScene {
+    gridSize = 16; // Number of cells per row and column
+    rectWidth;
+    rectHeight;
 
-    gameCanvas.addEventListener('mouseup', (event) => {
-        const rect = gameCanvas.getBoundingClientRect();
+    constructor(canvas) {
+        this.canvas = canvas;
+        this.rectWidth = canvas.width / this.gridSize;
+        this.rectHeight = canvas.height / this.gridSize;
+        const ctx = canvas.getContext('2d');
 
-        const x = Math.round(event.clientX - rect.left);
-        const y = Math.round(event.clientY - rect.top);
-        ctx.fillStyle = 'green';
-        ctx.fillRect(x - 10, y - 10, 20, 20);
-    })
+        canvas.addEventListener('mousedown', (event) => {
+            const rect = canvas.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+
+            // Calculate grid cell
+            const col = Math.floor(x / this.rectWidth);
+            const row = Math.floor(y / this.rectHeight);
+
+            // Highlight the clicked cell
+            ctx.fillStyle = 'black';
+            ctx.fillRect(col * this.rectWidth, row * this.rectHeight, this.rectWidth, this.rectHeight);
+        })
+    }
+
+    get ctx() {
+        return this.canvas.getContext('2d');
+    }
+
+// Draw grid
+    drawGrid() {
+        const ctx = this.ctx;
+        ctx.strokeStyle = 'lightgray';
+        ctx.lineWidth = 1;
+
+        // Draw vertical lines
+        for (let x = 0; x <= this.canvas.width; x += this.rectWidth) {
+            ctx.beginPath();
+            ctx.moveTo(x, 0);
+            ctx.lineTo(x, this.canvas.height);
+            ctx.stroke();
+        }
+
+        // Draw horizontal lines
+        for (let y = 0; y <= this.canvas.height; y += this.rectHeight) {
+            ctx.beginPath();
+            ctx.moveTo(0, y);
+            ctx.lineTo(this.canvas.width, y);
+            ctx.stroke();
+        }
+    }
+
+    clear() {
+        this.ctx.clear();
+        this.drawGrid();
+    }
 }
