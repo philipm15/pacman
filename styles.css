@@ -37,3 +37,9 @@ body {
     width: inherit;
     grid-area: content;
 }
+
+#iframe {
+    display: none;
+    position: absolute;
+    top: 20%;
+}

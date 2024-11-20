@@ -5,18 +5,21 @@
         <meta content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
               name="viewport">
         <meta content="ie=edge" http-equiv="X-UA-Compatible">
-        <script src="game.js"></script>
+        <script src="scene-manager.js" type="module"></script>
         <link href="styles.css" rel="stylesheet">
         <title>pacman</title>
     </head>
     <body>
         <main class="main">
             <nav class="main__nav">
-                <h1 id="loadingPlaceholder">Loading...</h1>
-                <button id="btnRestart">Restart</button>
+<!--                <h1 id="loadingPlaceholder">Loading...</h1>-->
+                <button id="rectAnimationBtn">Start Rect Animation</button>
+                <button id="pacmanAnimationBtn">Start Pacman Animation</button>
+                <button id="btnRestart">Stop</button>
             </nav>
             <div class="main__content">
-                <canvas id="gameCanvas" width="600" height="600"></canvas>
+                <canvas id="canvas" width="640" height="640"></canvas>
+                <iframe hidden id="iframe" width="560" height="315" src="https://www.youtube.com/embed/Ola0lHRZkDM?si=jVRYZKKw3ToezOTr" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
             </div>
         </main>
     </body>

@@ -1,20 +1,13 @@
-console.log("test")
-document.addEventListener('DOMContentLoaded', () => {
-    const loadingPlaceholder = document.getElementById('loadingPlaceholder');
-    setTimeout(() => {
-        loadingPlaceholder.innerHTML = 'Loading finished'
-    }, 500)
+"use strict";
 
-    createGameCanvas();
-})
+import {getRandomColor} from "../lib/color.js";
 
-function createGameCanvas() {
-    const gameCanvas = document.getElementById('gameCanvas');
-    const gameScene = new GameScene(gameCanvas);
-    gameScene.drawGrid();
+export function createRectAnimation(canvas) {
+    return new RectAnimation(canvas);
 }
 
-class GameScene {
+class RectAnimation {
+    canvas;
     gridSize = 16; // Number of cells per row and column
     rectWidth;
     rectHeight;
@@ -26,6 +19,7 @@ class GameScene {
         const ctx = canvas.getContext('2d');
 
         canvas.addEventListener('mousedown', (event) => {
+            console.log({event})
             const rect = canvas.getBoundingClientRect();
             const x = event.clientX - rect.left;
             const y = event.clientY - rect.top;
@@ -35,7 +29,7 @@ class GameScene {
             const row = Math.floor(y / this.rectHeight);
 
             // Highlight the clicked cell
-            ctx.fillStyle = 'black';
+            ctx.fillStyle = getRandomColor();
             ctx.fillRect(col * this.rectWidth, row * this.rectHeight, this.rectWidth, this.rectHeight);
         })
     }
@@ -44,7 +38,6 @@ class GameScene {
         return this.canvas.getContext('2d');
     }
 
-// Draw grid
     drawGrid() {
         const ctx = this.ctx;
         ctx.strokeStyle = 'lightgray';
@@ -67,8 +60,33 @@ class GameScene {
         }
     }
 
-    clear() {
-        this.ctx.clear();
+    startAnimation() {
+        this.clear();
         this.drawGrid();
+
+        let delay = 0;
+        let previousX = -1;
+        let previousY = -1;
+
+        for (let i = 0; i < this.gridSize; i++) {
+            for (let j = 0; j < this.gridSize; j++) {
+                setTimeout(() => {
+                    if (previousX !== -1 && previousY !== -1) {
+                        // this.ctx.clearRect(previousX * this.rectWidth, previousY * this.rectHeight, this.rectWidth, this.rectHeight);
+                        // this.drawGrid();
+                    }
+                    this.ctx.fillStyle = getRandomColor();
+                    this.ctx.fillRect(j * this.rectWidth, i * this.rectHeight, this.rectWidth, this.rectHeight);
+
+                    previousX = j;
+                    previousY = i;
+                }, delay);
+                delay += 200;
+            }
+        }
+    }
+
+    clear() {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
 }
