@@ -4,33 +4,32 @@ import {createRectAnimation} from "./scenes/rect-animation.js";
 import {createPacmanAnimation} from "./scenes/pacman-animation.js";
 
 document.addEventListener('DOMContentLoaded', () => {
-    // const loadingPlaceholder = document.getElementById('loadingPlaceholder');
-    // setTimeout(() => {
-    //     loadingPlaceholder.innerHTML = 'Loading finished'
-    // }, 500)
-    const restartBtn = document.getElementById('btnRestart');
+    const stopBtn = document.getElementById('stopBtn');
     const canvas = document.getElementById('canvas')
     const rectAnimationBtn = document.getElementById('rectAnimationBtn');
     const pacmanAnimationBtn = document.getElementById('pacmanAnimationBtn');
     const iframe = document.getElementById('iframe');
-    const animationFrames = [];
 
     let currentScene = undefined;
     let clicked = 0;
 
     function resetCanvas() {
-        canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
-        animationFrames.forEach(frame => window.cancelAnimationFrame(frame));
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.reset();
+        if(currentScene?.animationFrameId) {
+            window.cancelAnimationFrame(currentScene.animationFrameId);
+        }
     }
 
     rectAnimationBtn.addEventListener('click', () => {
         resetCanvas();
         currentScene = createRectAnimation(canvas);
         currentScene.drawGrid();
-        currentScene.startAnimation();
+        currentScene.start();
         clicked += 1;
 
-        if(clicked >= 5) {
+        if (clicked >= 5) {
             iframe.style.display = 'block';
             iframe.play();
         }
@@ -38,11 +37,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     pacmanAnimationBtn.addEventListener('click', () => {
         resetCanvas();
-        currentScene = createPacmanAnimation(canvas);
-        animationFrames.push(currentScene.startAnimation());
+        currentScene = createPacmanAnimation(canvas, canvas.width / 5, canvas.height / 5);
+        currentScene.start();
     })
 
-    restartBtn.addEventListener('click', () => {
-        console.log("implement stop")
+    stopBtn.addEventListener('click', () => {
+        resetCanvas();
+        currentScene = undefined;
     })
 })

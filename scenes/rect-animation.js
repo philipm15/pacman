@@ -60,7 +60,7 @@ class RectAnimation {
         }
     }
 
-    startAnimation() {
+    start() {
         this.clear();
         this.drawGrid();
 

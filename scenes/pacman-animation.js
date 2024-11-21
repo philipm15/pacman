@@ -8,17 +8,22 @@ export function createPacmanAnimation(canvas) {
 }
 
 class PacmanAnimation {
-    width = 100;
-    height = 100;
+    width;
+    height;
     scale = 1;
     growing = false;
     color = getRandomColor();
-    delta = 0.016;
+    positionX;
+    positionY;
+    delta = 0.03;
+    animationFrameId;
 
     constructor(canvas, width, height) {
         this.canvas = canvas;
         this.width = width ?? 100;
         this.height = height ?? 100;
+        this.positionX = this.centerX - this.width / 2;
+        this.positionY = this.centerY - this.height / 2;
         this.ctx.fillStyle = this.color;
     }
 
@@ -42,13 +47,39 @@ class PacmanAnimation {
         }
     }
 
-    startAnimation() {
-        clearCanvasCtx(this.ctx);
-        const rectOneMatrix = [this.centerX - this.width / 2, this.centerY - this.height / 2];
-        const rectTwoMatrix = [this.centerX - this.width / 2, this.centerY + this.height / 2];
+    start() {
+        document.addEventListener('keydown', e => {
+            // handle left, right, top, down, diagonally
+            if (e.key === 'ArrowUp' || e.key === 'w') {
+                this.positionY -= 5;
+            } else if (e.key === 'ArrowDown' || e.key === 's') {
+                this.positionY += 5;
+            } else if (e.key === 'ArrowLeft' || e.key === 'a') {
+                this.positionX -= 5;
+            } else if (e.key === 'ArrowRight' || e.key === 'd') {
+                this.positionX += 5;
+            }
+        });
 
-        this.ctx.fillRect(rectOneMatrix[0], rectOneMatrix[1], this.width, this.height * this.scale);
-        this.ctx.fillRect(rectTwoMatrix[0], rectTwoMatrix[1] - (this.height * this.scale), this.width, this.height * this.scale);
+        this.setupAnimation();
+    }
+
+    setupAnimation() {
+        if (!this.animationFrameId) {
+            this.animationFrameId = requestAnimationFrame(this.move.bind(this));
+        }
+    }
+
+    move() {
+        this.draw();
+        this.animationFrameId = requestAnimationFrame(this.move.bind(this));
+    }
+
+    draw() {
+        clearCanvasCtx(this.ctx);
+
+        this.ctx.fillRect(this.positionX, this.positionY, this.width, this.height * this.scale);
+        this.ctx.fillRect(this.positionX, (this.positionY + this.height) - (this.height * this.scale), this.width, this.height * this.scale);
 
         if (this.growing) {
             this.scale += this.delta;
@@ -57,7 +88,5 @@ class PacmanAnimation {
             this.scale -= this.delta;
             if (this.scale <= 0.2) this.growing = true;
         }
-
-        return requestAnimationFrame(this.startAnimation.bind(this));
     }
 }
