@@ -49,14 +49,18 @@ class PacmanAnimation {
 
     start() {
         document.addEventListener('keydown', e => {
+            const key = e.key.toLowerCase();
             // handle left, right, top, down, diagonally
-            if (e.key === 'ArrowUp' || e.key === 'w') {
+            if (key === 'arrowup' || key === 'w') {
                 this.positionY -= 5;
-            } else if (e.key === 'ArrowDown' || e.key === 's') {
+            }
+            if (key === 'arrowdown' || key === 's') {
                 this.positionY += 5;
-            } else if (e.key === 'ArrowLeft' || e.key === 'a') {
+            }
+            if (key === 'arrowleft' || key === 'a') {
                 this.positionX -= 5;
-            } else if (e.key === 'ArrowRight' || e.key === 'd') {
+            }
+            if (key === 'arrowright' || key === 'd') {
                 this.positionX += 5;
             }
         });
