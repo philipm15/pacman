@@ -15,8 +15,11 @@ class PacmanAnimation {
     color = getRandomColor();
     positionX;
     positionY;
-    delta = 0.03;
     animationFrameId;
+    velocityY = 0;
+    velocityX = 0;
+    lastTimestamp = 0;
+    velocity = 150;
 
     constructor(canvas, width, height) {
         this.canvas = canvas;
@@ -48,48 +51,70 @@ class PacmanAnimation {
     }
 
     start() {
+        const keyState = {};
+
         document.addEventListener('keydown', e => {
-            const key = e.key.toLowerCase();
-            // handle left, right, top, down, diagonally
-            if (key === 'arrowup' || key === 'w') {
-                this.positionY -= 5;
-            }
-            if (key === 'arrowdown' || key === 's') {
-                this.positionY += 5;
-            }
-            if (key === 'arrowleft' || key === 'a') {
-                this.positionX -= 5;
-            }
-            if (key === 'arrowright' || key === 'd') {
-                this.positionX += 5;
-            }
+            keyState[e.key.toLowerCase()] = true;
+            this.updateVelocity(keyState);
+        });
+
+        document.addEventListener('keyup', e => {
+            keyState[e.key.toLowerCase()] = false;
+            this.updateVelocity(keyState);
         });
 
         this.setupAnimation();
     }
 
-    setupAnimation() {
-        if (!this.animationFrameId) {
-            this.animationFrameId = requestAnimationFrame(this.move.bind(this));
+    updateVelocity(keyState) {
+        this.velocityX = 0;
+        this.velocityY = 0;
+
+        if (keyState['arrowup'] || keyState['w']) {
+            this.velocityY -= this.velocity;
+        }
+        if (keyState['arrowdown'] || keyState['s']) {
+            this.velocityY += this.velocity;
+        }
+        if (keyState['arrowleft'] || keyState['a']) {
+            this.velocityX -= this.velocity;
+        }
+        if (keyState['arrowright'] || keyState['d']) {
+            this.velocityX += this.velocity;
         }
     }
 
-    move() {
-        this.draw();
-        this.animationFrameId = requestAnimationFrame(this.move.bind(this));
+    setupAnimation() {
+        if (!this.animationFrameId) {
+            this.animationFrameId = requestAnimationFrame(this.loop.bind(this));
+        }
     }
 
-    draw() {
+    loop(timestamp) {
+        const deltaTime = (timestamp - this.lastTimestamp) / 1000;
+        this.lastTimestamp = timestamp;
+
+        this.updatePosition(deltaTime);
+        this.draw(deltaTime);
+        this.animationFrameId = requestAnimationFrame(this.loop.bind(this));
+    }
+
+    updatePosition(deltaTime) {
+        this.positionX += this.velocityX * deltaTime;
+        this.positionY += this.velocityY * deltaTime;
+    }
+
+    draw(deltaTime) {
         clearCanvasCtx(this.ctx);
 
         this.ctx.fillRect(this.positionX, this.positionY, this.width, this.height * this.scale);
         this.ctx.fillRect(this.positionX, (this.positionY + this.height) - (this.height * this.scale), this.width, this.height * this.scale);
 
         if (this.growing) {
-            this.scale += this.delta;
+            this.scale + deltaTime > 1 ? this.scale = 1 : this.scale += deltaTime;
             if (this.scale >= 1) this.growing = false;
         } else {
-            this.scale -= this.delta;
+            this.scale - deltaTime < 0.2 ? this.scale = 0.2 : this.scale -= deltaTime;
             if (this.scale <= 0.2) this.growing = true;
         }
     }
